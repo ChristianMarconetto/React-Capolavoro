@@ -1,5 +1,5 @@
-import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css"
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -22,5 +22,5 @@ export default function App() {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+//const root = ReactDOM.createRoot(document.getElementById('root'));
+//root.render(<App />);
