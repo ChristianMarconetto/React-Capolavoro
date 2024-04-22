@@ -2,20 +2,30 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "@svgr/webpack": "$@svgr/webpack"
+  },
   "dependencies": {
+    "@mui/material": "^5.15.12",
     "@react-three/drei": "^9.97.3",
     "@react-three/fiber": "^8.15.16",
+    "@svgr/webpack": "^6.2.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.7",
     "body-parser": "^1.20.2",
+    "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "react-router-dom": "^6.22.0",
     "react-scripts": "5.0.1",
+    "react-use-websocket": "^4.8.1",
     "styled-components": "^6.1.8",
     "three": "^0.161.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "websocket": "^1.0.34"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -40,5 +50,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "webpack-dev-middleware": "^7.2.1"
   }
 }
