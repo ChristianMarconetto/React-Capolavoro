@@ -25,6 +25,10 @@ const styles = {
     marginBottom: "30px",
     color: "#f56f47",
     textTransform: "uppercase",
+    fontSize: "3rem",
+    marginBottom: "30px",
+    color: "#f56f47",
+    textTransform: "uppercase",
   },
   subTitle: {
     color: "#ff7b00",
