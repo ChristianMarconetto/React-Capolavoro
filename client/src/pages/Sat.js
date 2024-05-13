@@ -216,16 +216,11 @@ function Earth() {
   const earthRef = useRef();
   const colorMap = new TextureLoader().load("/earth.jpg");
   useEffect(() => {
-  const colorMap = new TextureLoader().load("/earth.jpg");
-  useEffect(() => {
     earthRef.current.rotation.y += 0.001;
-  }, []);
   }, []);
   return (
     <mesh ref={earthRef}>
-    <mesh ref={earthRef}>
       <sphereGeometry args={[1, 50, 50]} />
-      <meshPhongMaterial map={colorMap} />
       <meshPhongMaterial map={colorMap} />
     </mesh>
   );
@@ -432,14 +427,6 @@ function EarthPage() {
         overflow: "hidden",
       }}
     >
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        position: "fixed",
-        overflow: "hidden",
-      }}
-    >
       <Canvas camera={{ position: [0, 0, 5] }}>
         <ambientLight intensity={0.5} />
         <directionalLight intensity={10.5} position={sunPosition} />
@@ -468,11 +455,6 @@ function EarthPage() {
         ))}
         <OrbitControls />
       </Canvas>
-      <Sidebar satellite={selectedSatellite} handleClose={handleClose} />
-      <SatelliteDataMenu
-        satellites={satellites}
-        setSelectedSatellite={setSelectedSatellite}
-      />
       <Sidebar satellite={selectedSatellite} handleClose={handleClose} />
       <SatelliteDataMenu
         satellites={satellites}
