@@ -1,70 +1,26 @@
-# Getting Started with Create React App
+# Christian Marconetto
+## J.C. Maxwell Nichelino (TO)
+### TerraSat
+#### 4 Aprile 2024
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Abstract
+Questo Capolavoro è un progetto che unisce tecnologie avanzate e dati spaziali per creare un'esperienza interattiva e istruttiva. L'applicazione web offre una rappresentazione tridimensionale del pianeta Terra, accompagnata da informazioni in tempo reale sulla posizione certificata dei satelliti in orbita, fornite da API specializzate. Questa documentazione fornisce un'analisi delle tecnologie utilizzate, dei principali componenti del codice e delle funzionalità implementate.
 
-## Available Scripts
+## Tecnologie Utilizzate
+Il nucleo del progetto Capolavoro è basato su Node.js, un ambiente di runtime JavaScript noto per la sua efficienza nell'esecuzione di operazioni di I/O, rendendolo ideale per applicazioni web interattive. Utilizziamo il framework Express.js per gestire le richieste HTTP e WebSocket per la comunicazione in tempo reale tra il server e il client. Il client-side è sviluppato utilizzando React, un framework JavaScript per la creazione di interfacce utente, e Three.js per la rappresentazione 3D del pianeta Terra.
 
-In the project directory, you can run:
+## Struttura del Codice
+Il codice è organizzato in moduli che gestiscono diverse funzionalità dell'applicazione:
 
-### `npm start`
+- **Server:** La logica del server è gestita principalmente da Express.js. Qui definiamo le rotte per fornire i dati dei satelliti e gestire le operazioni di registrazione e accesso degli utenti.
+- **WebSocket:** Utilizziamo WebSocket per abilitare la comunicazione bidirezionale in tempo reale tra il server e il client. Questo è essenziale per aggiornare dinamicamente i dati dei satelliti e sincronizzare le interazioni degli utenti.
+- **Client:** Il lato client è sviluppato utilizzando React, con componenti React per gestire la rappresentazione dell'interfaccia utente. Three.js è utilizzato per la creazione della rappresentazione tridimensionale del pianeta Terra e dei satelliti.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Funzionalità Principali
+- **Rappresentazione 3D del Pianeta:** Utilizzando Three.js, creiamo una visualizzazione tridimensionale realistica del pianeta Terra, che permette di orientarsi per avere un'idea migliore di dove si trovino i nostri satelliti.
+- **Posizione Certificata dei Satelliti:** Integrando API specializzate, forniamo informazioni aggiornate sulla posizione dei satelliti in orbita intorno alla Terra. Gli utenti possono selezionare specifici satelliti per ottenere dettagli sulla loro orbita, altitudine e altre informazioni rilevanti.
+- **Interattività:** L'applicazione offre un'interfaccia utente intuitiva che consente agli utenti di interagire con il pianeta e i satelliti. Gli utenti possono zoomare, ruotare e cercare per esplorare il pianeta da diverse prospettive.
+- **Dati in Tempo Reale:** Grazie alla comunicazione WebSocket e all'integrazione con le API, l'applicazione fornisce dati in tempo reale sulla posizione dei satelliti. Questo garantisce che gli utenti ottengano informazioni accurate e aggiornate durante l'esplorazione dello spazio.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Conclusioni
+Il progetto rappresenta un esempio di integrazione efficace tra tecnologie “avanzate” e conoscenze spaziali. Attraverso la sua rappresentazione tridimensionale del pianeta Terra e le informazioni in tempo reale sui satelliti, TerraSat offre agli utenti un'esperienza unica e informativa, contribuendo a stimolare la curiosità e l'apprendimento su tematiche spaziali.
