@@ -8,6 +8,8 @@
     "express": "^4.19.2",
     "express-ws": "^5.0.2",
     "jsonwebtoken": "^9.0.2",
-    "tle.js": "^3.1.0"
+    "prisma": "^5.13.0",
+    "tle.js": "^3.1.0",
+    "uuid": "^9.0.1"
   }
 }
