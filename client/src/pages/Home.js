@@ -107,11 +107,10 @@ function Home() {
           <h2 style={styles.subTitle}>Introduzione</h2>
           <p style={styles.description}>
             Benvenuti in TerraSat, il portale che vi porta nello spazio! Con la
-            nostra piattaforma, potrete toccare con mano la bellezza del nostro
-            pianeta e la complessità dell'universo satellitare. Scoprite come la
-            tecnologia moderna ci permette di osservare la Terra da una
-            prospettiva mai vista prima e di monitorare i nostri satelliti in
-            tempo reale.
+            nostra piattaforma, potrete toccare con mano la bellezza delle
+            nostre capacità scentifiche. Scoprite come la tecnologia moderna ci
+            permette di osservare la Terra da una prospettiva particolare e di
+            monitorare i nostri satelliti in tempo reale.
           </p>
         </div>
         <div style={styles.section}>
@@ -153,9 +152,8 @@ function Home() {
               >
                 React Three Fiber
               </a>
-              , TerraSat offre una mappa tridimensionale della Terra,
-              permettendovi di esplorare ogni angolo del globo con una
-              precisione mozzafiato.
+              , TerraSat offre una mappa tridimensionale della Terra, e di avere
+              idea di dove si trovano un determinato numero di satelliti.
             </li>
             <li>
               <strong>Posizione Certificata dei Satelliti:</strong> Le nostre
@@ -164,9 +162,9 @@ function Home() {
               essenziali.
             </li>
             <li>
-              <strong>Interattività:</strong> Interagite con il pianeta e i
-              satelliti utilizzando funzionalità intuitive di zoom e rotazione,
-              per un'esperienza utente senza precedenti.
+              <strong>Interattività:</strong> Interagite con i satelliti
+              utilizzando funzionalità intuitive di zoom e rotazione, per
+              un'esperienza utente senza precedenti.
             </li>
             <li>
               <strong>Dati in Tempo Reale:</strong> TerraSat si aggiorna
