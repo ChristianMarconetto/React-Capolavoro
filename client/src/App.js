@@ -5,9 +5,9 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Blogs from "./pages/Blogs";
-import Contact from "./pages/Contact";
 import NoPage from "./pages/NoPage";
 import EarthPage from "./pages/Sat";
+import ApiRefused from "./pages/ApiRefused";
 
 function withAuth(Component) {
   return function ProtectedRoute(props) {
@@ -37,6 +37,14 @@ export default class App extends Component {
     };
     ws.onmessage = (event) => {
       console.log("Ricevuto un messaggio: ", event.data);
+      const message = JSON.parse(event.data);
+      if (message.type === "refresh") {
+        // Ricarica la pagina
+        window.location.reload();
+      } else if (message.type === "api-refused") {
+        // Reindirizza l'utente alla pagina di attesa
+        window.location.href = "/ApiRefused";
+      }
     };
     ws.onerror = (error) => {
       console.log("Errore WebSocket: ", error);
@@ -61,7 +69,7 @@ export default class App extends Component {
           <Route path="blogs" element={<Blogs />} />
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="apiRefused" element={<ApiRefused />} />
           <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>

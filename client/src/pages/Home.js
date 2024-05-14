@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 const styles = {
   container: {
     display: "flex",
@@ -12,19 +13,34 @@ const styles = {
     fontFamily: "'Segoe UI', Arial, sans-serif",
     padding: "20px",
   },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+    maxWidth: "800px",
+    padding: "20px",
+    borderBottom: "1px solid #333",
+    marginBottom: "40px",
+  },
+  navLink: {
+    textDecoration: "none",
+    color: "#fff",
+    marginRight: "20px",
+    fontSize: "1.2rem",
+    transition: "color 0.3s ease",
+  },
+  activeLink: {
+    color: "#ff7b00",
+  },
   section: {
     width: "100%",
     maxWidth: "800px",
-    padding: "40px",
     textAlign: "center",
+    paddingBottom: "20px",
     borderBottom: "1px solid #333",
     marginBottom: "40px",
   },
   title: {
-    fontSize: "3rem",
-    marginBottom: "30px",
-    color: "#f56f47",
-    textTransform: "uppercase",
     fontSize: "3rem",
     marginBottom: "30px",
     color: "#f56f47",
@@ -80,9 +96,9 @@ function Home() {
           name="keywords"
           content="TerraSat, esplorazione spaziale, satelliti, mappa 3D, dati in tempo reale, Node.js, NASA, React Three Fiber"
         />
-        {/* Altri meta tag per SEO */}
       </Helmet>
       <div style={styles.section}>
+        <Header />
         <h1 style={styles.title}>
           Esplora Terra e Satelliti{" "}
           <strong style={{ color: "#ff7b00" }}>TerraSat</strong>
@@ -113,6 +129,16 @@ function Home() {
             </a>{" "}
             per accedere a dati satellitari aggiornati, che ci consentono di
             offrire una mappa interattiva e dinamica del nostro pianeta.
+          </p>
+        </div>
+        <div style={styles.section}>
+          <h2 style={styles.subTitle}>Codice del Server</h2>
+          <p style={styles.description}>
+            Il nostro server è sviluppato utilizzando Node.js e Express.js, due
+            potenti framework per la creazione di applicazioni web scalabili e
+            performanti. Il server gestisce molte funzionalità cruciali del
+            nostro sistema, tra cui la gestione dei dati dei satelliti, le
+            richieste degli utenti per registrazione e accesso, e molto altro.
           </p>
         </div>
         <div style={styles.section}>
@@ -150,15 +176,6 @@ function Home() {
           </ul>
         </div>
         <div style={styles.linkContainer}>
-          <Link to="/register" style={styles.link}>
-            Registrati
-          </Link>
-          <Link to="/login" style={styles.link}>
-            Accedi
-          </Link>
-          <Link to="/sat" style={styles.link}>
-            Satelliti
-          </Link>
           <a
             href="https://github.com/react-capolavoro"
             style={styles.link}
@@ -209,6 +226,7 @@ function Home() {
           </a>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
