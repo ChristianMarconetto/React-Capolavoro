@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame} from "@react-three/fiber";
 import { Stars, OrbitControls, Text, Billboard } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import SunCalc from "suncalc";
@@ -236,15 +236,12 @@ function Earth() {
 function Sun() {
   const sunRef = useRef();
   const [gltf, setGltf] = useState(null);
-
   useEffect(() => {
     const loadModel = async () => {
       const gltfResult = await new GLTFLoader().loadAsync("/sunObject.glb");
       setGltf(gltfResult);
     };
-
     loadModel();
-
     return () => {
       setGltf(null);
     };
@@ -407,7 +404,149 @@ function Satellite({
     </group>
   );
 }
+import { Body, Equator, observer } from 'astronomy-engine';
 
+function Planet({ name, scale, rotationSpeed, glbPath }) {
+  const [model, setModel] = useState();
+  const planetRef = useRef();
+
+  // Utilizza Astronomy Engine per ottenere la posizione del pianeta
+  const [position, setPosition] = useState([0, 0, 0]);
+  useEffect(() => {
+    const updatePosition = async () => {
+      const date = new Date();
+      const eq = Equator(Body[name], date, observer);
+      // Converti le coordinate equatoriali in coordinate 3D
+      const x = eq.distance * Math.cos(eq.dec) * Math.cos(eq.ra);
+      const y = eq.distance * Math.cos(eq.dec) * Math.sin(eq.ra);
+      const z = eq.distance * Math.sin(eq.dec);
+      setPosition([x, y, z]);
+    };
+
+    updatePosition();
+    const interval = setInterval(updatePosition, 1000); // Aggiorna la posizione ogni secondo
+
+    return () => clearInterval(interval);
+  }, [name]);
+
+  useEffect(() => {
+    const loadModel = async () => {
+      const gltfResult = await new GLTFLoader().loadAsync(glbPath);
+      planetRef.current = gltfResult.scene;
+      setModel(planetRef.current);
+    };
+
+    loadModel();
+
+    return () => {
+      planetRef.current = null;
+    };
+  }, [glbPath]);
+
+  useFrame(() => {
+    if (planetRef.current) {
+      planetRef.current.rotation.y += rotationSpeed;
+    }
+  });
+
+  return model ? <primitive object={model} position={position} scale={scale} /> : null;
+}
+
+export function Mars() {
+  return (
+    <Planet
+      name={"Mars"}
+      position={[16, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Mars
+      rotationSpeed={0.005}
+      glbPath={"/mars.glb"}
+    />
+  );
+}
+
+export function Jupiter() {
+  return (
+    <Planet
+      name="Jupiter"
+      position={[20, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Jupiter
+      rotationSpeed={0.002}
+      glbPath="/jupiter.glb"
+    />
+  );
+}
+
+export function Saturn() {
+  return (
+    <Planet
+      name="Saturn"
+      position={[26, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Saturn
+      rotationSpeed={0.001}
+      glbPath="/saturn.glb"
+    />
+  );
+}
+
+export function Mercury() {
+  return (
+    <Planet
+      name="Mercury"
+      position={[10, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Mercury
+      rotationSpeed={0.005}
+      glbPath="/mercury.glb"
+    />
+  );
+}
+
+export function Venus() {
+  return (
+    <Planet
+      name="Venus"
+      position={[12, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Venus
+      rotationSpeed={0.008}
+      glbPath="/venus.glb"
+    />
+  );
+}
+
+export function Uranus() {
+  return (
+    <Planet
+      name="Uranus"
+      position={[30, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Uranus
+      rotationSpeed={0.001}
+      glbPath="/uranus.glb"
+    />
+  );
+}
+
+export function Neptune() {
+  return (
+    <Planet
+      name="Neptune"
+      position={[34, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Neptune
+      rotationSpeed={0.001}
+      glbPath="/neptune.glb"
+    />
+  );
+}
+
+export function Pluto() {
+  return (
+    <Planet
+      name="Pluto"
+      position={[38, 0, 0]}
+      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Pluto
+      rotationSpeed={0.001}
+      glbPath="/pluto.glb"
+    />
+  );
+}
 function EarthPage() {
   const [sunPosition, setSunPosition] = useState([0, 0, 0]);
 
@@ -503,6 +642,14 @@ function EarthPage() {
         <Earth />
         <Moon />
         <Sun />
+        <Mercury />
+        <Mars />
+        <Jupiter />
+        <Saturn />
+        <Venus />
+        <Uranus />
+        <Neptune />
+        <Pluto />
         {Object.keys(satellites).map((name, index) => (
           <Satellite
             key={name}
