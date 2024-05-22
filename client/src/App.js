@@ -37,6 +37,7 @@ export default class App extends Component {
     };
     ws.onmessage = (event) => {
       console.log("Ricevuto un messaggio: ", event.data);
+      console.log("ciao")
       const message = JSON.parse(event.data);
       if (message.type === "refresh") {
         // Ricarica la pagina

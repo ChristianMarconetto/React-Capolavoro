@@ -4,6 +4,8 @@ import { Stars, OrbitControls, Text, Billboard } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import SunCalc from "suncalc";
 import { TextureLoader } from "three";
+import { Body, Equator, Observer } from 'astronomy-engine';
+
 import axios from "axios";
 const SCALE_FACTOR = 1;
 function SatelliteDataMenu({ satellites, setSelectedSatellite }) {
@@ -404,44 +406,54 @@ function Satellite({
     </group>
   );
 }
-import { Body, Equator, observer } from 'astronomy-engine';
+
+
 
 function Planet({ name, scale, rotationSpeed, glbPath }) {
-  const [model, setModel] = useState();
   const planetRef = useRef();
-
-  // Utilizza Astronomy Engine per ottenere la posizione del pianeta
+  const [gltf, setGltf] = useState(null);
   const [position, setPosition] = useState([0, 0, 0]);
+
+  useEffect(() => {
+    const loadModel = () => {
+      const loader = new GLTFLoader();
+      loader.load(
+        glbPath,
+        (gltfResult) => {
+          setGltf(gltfResult);
+        },
+        undefined,
+        (error) => {
+          console.error(`Error loading GLTF model for ${name}:`, error);
+        }
+      );
+    };
+  
+    loadModel();
+  }, [glbPath, name]);
+
   useEffect(() => {
     const updatePosition = async () => {
       const date = new Date();
-      const eq = Equator(Body[name], date, observer);
-      // Converti le coordinate equatoriali in coordinate 3D
+      const observer = new Observer(41.9028, 12.4964, 0);
+      const body = Body[name];
+      if (!body) {
+        console.error(`Invalid planet name: ${name}`);
+        return;
+      }
+      const eq = Equator(body, date, observer, true, true);
+
       const x = eq.distance * Math.cos(eq.dec) * Math.cos(eq.ra);
       const y = eq.distance * Math.cos(eq.dec) * Math.sin(eq.ra);
       const z = eq.distance * Math.sin(eq.dec);
+
       setPosition([x, y, z]);
     };
 
     updatePosition();
-    const interval = setInterval(updatePosition, 1000); // Aggiorna la posizione ogni secondo
-
+    const interval = setInterval(updatePosition, 1000);
     return () => clearInterval(interval);
   }, [name]);
-
-  useEffect(() => {
-    const loadModel = async () => {
-      const gltfResult = await new GLTFLoader().loadAsync(glbPath);
-      planetRef.current = gltfResult.scene;
-      setModel(planetRef.current);
-    };
-
-    loadModel();
-
-    return () => {
-      planetRef.current = null;
-    };
-  }, [glbPath]);
 
   useFrame(() => {
     if (planetRef.current) {
@@ -449,104 +461,23 @@ function Planet({ name, scale, rotationSpeed, glbPath }) {
     }
   });
 
-  return model ? <primitive object={model} position={position} scale={scale} /> : null;
-}
+  if (!gltf) {
+    return null;
+  }
 
-export function Mars() {
   return (
-    <Planet
-      name={"Mars"}
-      position={[16, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Mars
-      rotationSpeed={0.005}
-      glbPath={"/mars.glb"}
-    />
+    <group ref={planetRef} position={position} scale={scale}>
+      <primitive object={gltf.scene.clone()} />
+      <Billboard>
+        <Text position={[0, 0.1, 0]} fontSize={0.1} color="white">
+          {name}
+        </Text>
+      </Billboard>
+    </group>
   );
 }
 
-export function Jupiter() {
-  return (
-    <Planet
-      name="Jupiter"
-      position={[20, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Jupiter
-      rotationSpeed={0.002}
-      glbPath="/jupiter.glb"
-    />
-  );
-}
 
-export function Saturn() {
-  return (
-    <Planet
-      name="Saturn"
-      position={[26, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Saturn
-      rotationSpeed={0.001}
-      glbPath="/saturn.glb"
-    />
-  );
-}
-
-export function Mercury() {
-  return (
-    <Planet
-      name="Mercury"
-      position={[10, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Mercury
-      rotationSpeed={0.005}
-      glbPath="/mercury.glb"
-    />
-  );
-}
-
-export function Venus() {
-  return (
-    <Planet
-      name="Venus"
-      position={[12, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Venus
-      rotationSpeed={0.008}
-      glbPath="/venus.glb"
-    />
-  );
-}
-
-export function Uranus() {
-  return (
-    <Planet
-      name="Uranus"
-      position={[30, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Uranus
-      rotationSpeed={0.001}
-      glbPath="/uranus.glb"
-    />
-  );
-}
-
-export function Neptune() {
-  return (
-    <Planet
-      name="Neptune"
-      position={[34, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Neptune
-      rotationSpeed={0.001}
-      glbPath="/neptune.glb"
-    />
-  );
-}
-
-export function Pluto() {
-  return (
-    <Planet
-      name="Pluto"
-      position={[38, 0, 0]}
-      scale={[0.05, 0.05, 0.05]} // Imposta la scala del pianeta Pluto
-      rotationSpeed={0.001}
-      glbPath="/pluto.glb"
-    />
-  );
-}
 function EarthPage() {
   const [sunPosition, setSunPosition] = useState([0, 0, 0]);
 
@@ -573,7 +504,7 @@ function EarthPage() {
           "http://localhost:5000/satellites/coordinates"
         );
         const satellitesData = response.data;
-        console.log("Response.data =", response.data);
+        //console.log("Response.data =", response.data);
         const formattedSatellites = satellitesData.reduce((acc, satellite) => {
           acc[satellite.name] = {
             azimuth: satellite.azimuth,
@@ -589,7 +520,7 @@ function EarthPage() {
           };
           return acc;
         }, {});
-        console.log("formattedData", formattedSatellites);
+        //console.log("formattedData", formattedSatellites);
         setSatellites(formattedSatellites);
       } catch (error) {
         console.error(
@@ -618,7 +549,16 @@ function EarthPage() {
   const handleClose = () => {
     setSelectedSatellite(null);
   };
-
+  const planetsData = [
+    { name: 'Mars', position: [16, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.005, glbPath: '/mars.glb' },
+    { name: 'Jupiter', position: [20, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.002, glbPath: '/jupiter.glb' },
+    { name: 'Saturn', position: [26, 0, 0], scale: [1000000, 1000000, 1000000], rotationSpeed: 0.002, glbPath: '/saturn.glb' },
+    { name: 'Mercury', position: [10, 0, 0], scale: [10, 10, 10], rotationSpeed: 0.002, glbPath: '/mercury.glb' },
+    { name: 'Venus', position: [12, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.008, glbPath: '/venus.glb' },
+    { name: 'Uranus', position: [30, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/uranus.glb' },
+    { name: 'Neptune', position: [34, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/neptune.glb' },
+    { name: 'Pluto', position: [38, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/pluto.glb' },
+  ];
   return (
     <div
       style={{
@@ -642,14 +582,9 @@ function EarthPage() {
         <Earth />
         <Moon />
         <Sun />
-        <Mercury />
-        <Mars />
-        <Jupiter />
-        <Saturn />
-        <Venus />
-        <Uranus />
-        <Neptune />
-        <Pluto />
+        {planetsData.map((planet, index) => (
+          <Planet key={index} {...planet} />
+        ))}
         {Object.keys(satellites).map((name, index) => (
           <Satellite
             key={name}
@@ -676,5 +611,4 @@ function EarthPage() {
     </div>
   );
 }
-
 export default EarthPage;
