@@ -8,6 +8,54 @@ import { Body, Equator, Observer } from 'astronomy-engine';
 
 import axios from "axios";
 const SCALE_FACTOR = 1;
+
+const PLANETS = [
+  { name: 'Mercury', glbPath: '/mercury.glb' },
+  { name: 'Venus', glbPath: '/venus.glb' },
+  { name: 'Mars', glbPath: '/mars.glb' },
+  { name: 'Jupiter', glbPath: '/jupiter.glb' },
+  { name: 'Saturn', glbPath: '/saturn.glb' },
+  { name: 'Uranus', glbPath: '/uranus.glb' },
+  { name: 'Neptune', glbPath: '/neptune.glb' },
+];
+function Planet({ planet }) {
+  const planetRef = useRef();
+  const [gltf, setGltf] = useState(null);
+
+  useEffect(() => {
+    const loadModel = () => {
+      const loader = new GLTFLoader();
+      loader.load(
+        planet.glbPath,
+        (gltfResult) => {
+          setGltf(gltfResult);
+        },
+        undefined,
+        (error) => {
+          console.error(`Error loading GLTF model for ${planet.name}:`, error);
+        }
+      );
+    };
+  
+    loadModel();
+  }, [planet.glbPath, planet.name]);
+
+  if (!gltf) {
+    return null;
+  }
+
+  return (
+    <group ref={planetRef}>
+      <primitive object={gltf.scene.clone()} scale={[SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR]} />
+      <Billboard>
+        <Text position={[0, 0.2, 0]} fontSize={0.1} color="white">
+          {planet.name}
+        </Text>
+      </Billboard>
+    </group>
+  );
+}
+
 function SatelliteDataMenu({ satellites, setSelectedSatellite }) {
   const [selectedSatellite, setLocalSelectedSatellite] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -371,9 +419,9 @@ function Satellite({
         radius * Math.cos(phi),
         radius * Math.sin(phi) * Math.sin(theta)
       );
-
-      satelliteRef.current.up.set(...sunPosition);
-      satelliteRef.current.lookAt(...sunPosition);
+        console.log(sunPosition)
+      satelliteRef.current.up.set(sunPosition);
+      satelliteRef.current.lookAt(sunPosition);
       satelliteRef.current.rotateX(Math.PI / 2);
     }
   }, [lat, lng, alt, gltf, sunPosition]);
@@ -409,73 +457,7 @@ function Satellite({
 
 
 
-function Planet({ name, scale, rotationSpeed, glbPath }) {
-  const planetRef = useRef();
-  const [gltf, setGltf] = useState(null);
-  const [position, setPosition] = useState([0, 0, 0]);
 
-  useEffect(() => {
-    const loadModel = () => {
-      const loader = new GLTFLoader();
-      loader.load(
-        glbPath,
-        (gltfResult) => {
-          setGltf(gltfResult);
-        },
-        undefined,
-        (error) => {
-          console.error(`Error loading GLTF model for ${name}:`, error);
-        }
-      );
-    };
-  
-    loadModel();
-  }, [glbPath, name]);
-
-  useEffect(() => {
-    const updatePosition = async () => {
-      const date = new Date();
-      const observer = new Observer(41.9028, 12.4964, 0);
-      const body = Body[name];
-      if (!body) {
-        console.error(`Invalid planet name: ${name}`);
-        return;
-      }
-      const eq = Equator(body, date, observer, true, true);
-
-      const x = eq.distance * Math.cos(eq.dec) * Math.cos(eq.ra);
-      const y = eq.distance * Math.cos(eq.dec) * Math.sin(eq.ra);
-      const z = eq.distance * Math.sin(eq.dec);
-
-      setPosition([x, y, z]);
-    };
-
-    updatePosition();
-    const interval = setInterval(updatePosition, 1000);
-    return () => clearInterval(interval);
-  }, [name]);
-
-  useFrame(() => {
-    if (planetRef.current) {
-      planetRef.current.rotation.y += rotationSpeed;
-    }
-  });
-
-  if (!gltf) {
-    return null;
-  }
-
-  return (
-    <group ref={planetRef} position={position} scale={scale}>
-      <primitive object={gltf.scene.clone()} />
-      <Billboard>
-        <Text position={[0, 0.1, 0]} fontSize={0.1} color="white">
-          {name}
-        </Text>
-      </Billboard>
-    </group>
-  );
-}
 
 
 function EarthPage() {
@@ -582,8 +564,11 @@ function EarthPage() {
         <Earth />
         <Moon />
         <Sun />
-        {planetsData.map((planet, index) => (
-          <Planet key={index} {...planet} />
+        {PLANETS.map((planet) => (
+          <Planet key={planet.name} planet={planet} />
+        ))}
+        {Object.entries(satellites).map(([name, satellite]) => (
+          <Satellite key={name} name={name} noradId={satellite.noradId} />
         ))}
         {Object.keys(satellites).map((name, index) => (
           <Satellite

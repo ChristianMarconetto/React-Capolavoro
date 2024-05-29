@@ -211,7 +211,7 @@ updateSatellitesData();
 var connections = [];
 server.ws("/", (ws, res) => {
   connections.push(ws);
-  console.log(connections);
+  //console.log(connections);
   //whatever other stuff here, you could also have it be an object storing stuff about the ws that contains it.
 });
 function broadcast(message) {
