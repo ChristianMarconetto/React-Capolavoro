@@ -1,28 +1,33 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Canvas, useFrame} from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars, OrbitControls, Text, Billboard } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import SunCalc from "suncalc";
 import { TextureLoader } from "three";
-import { Body, Equator, Observer } from 'astronomy-engine';
+import { Body, Equator, Observer } from "astronomy-engine";
+import * as THREE from "three"; // Importa Three.js
 
 import axios from "axios";
 const SCALE_FACTOR = 1;
 
 const PLANETS = [
-  { name: 'Mercury', glbPath: '/mercury.glb' },
-  { name: 'Venus', glbPath: '/venus.glb' },
-  { name: 'Mars', glbPath: '/mars.glb' },
-  { name: 'Jupiter', glbPath: '/jupiter.glb' },
-  { name: 'Saturn', glbPath: '/saturn.glb' },
-  { name: 'Uranus', glbPath: '/uranus.glb' },
-  { name: 'Neptune', glbPath: '/neptune.glb' },
+  { name: "Mercury", glbPath: "/mercury.glb", radius: 2439.7 },
+  { name: "Venus", glbPath: "/venus.glb", radius: 6051.8 },
+  { name: "Earth", glbPath: "/earth.glb", radius: 6371 },
+  { name: "Mars", glbPath: "/mars.glb", radius: 3389.5 },
+  { name: "Jupiter", glbPath: "/jupiter.glb", radius: 69911 },
+  { name: "Saturn", glbPath: "/saturn.glb", radius: 58232 },
+  { name: "Uranus", glbPath: "/uranus.glb", radius: 25362 },
+  { name: "Neptune", glbPath: "/neptune.glb", radius: 24622 },
 ];
+
 function Planet({ planet }) {
   const planetRef = useRef();
   const [gltf, setGltf] = useState(null);
 
   useEffect(() => {
+    console.log(planet.glbPath);
+
     const loadModel = () => {
       const loader = new GLTFLoader();
       loader.load(
@@ -36,7 +41,7 @@ function Planet({ planet }) {
         }
       );
     };
-  
+
     loadModel();
   }, [planet.glbPath, planet.name]);
 
@@ -46,7 +51,14 @@ function Planet({ planet }) {
 
   return (
     <group ref={planetRef}>
-      <primitive object={gltf.scene.clone()} scale={[SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR]} />
+      <primitive
+        object={gltf.scene.clone()}
+        scale={[
+          planet.dimensions.meanRadius / planet.radius,
+          planet.dimensions.meanRadius / planet.radius,
+          planet.dimensions.meanRadius / planet.radius,
+        ]}
+      />
       <Billboard>
         <Text position={[0, 0.2, 0]} fontSize={0.1} color="white">
           {planet.name}
@@ -192,6 +204,7 @@ function SatelliteDataMenu({ satellites, setSelectedSatellite }) {
 }
 
 function Sidebar({ satellite, handleClose }) {
+  //console.log(satellite);
   return (
     <>
       <div
@@ -257,11 +270,12 @@ function Sidebar({ satellite, handleClose }) {
             </p>
             <p>
               <strong>Description:</strong>{" "}
-              {satellite.description
-                .split(/\. (?=[A-Z])/)
-                .map((sentence, index) => (
-                  <p key={index}>{sentence.trim()}</p>
-                ))}
+              {satellite.description &&
+                satellite.description
+                  .split(/\. (?=[A-Z])/)
+                  .map((sentence, index) => (
+                    <p key={index}>{sentence.trim()}</p>
+                  ))}
             </p>
           </>
         )}
@@ -273,9 +287,7 @@ function Sidebar({ satellite, handleClose }) {
 function Earth() {
   const earthRef = useRef();
   const colorMap = new TextureLoader().load("/earth.jpg");
-  useEffect(() => {
-    earthRef.current.rotation.y += 0.001;
-  }, []);
+
   return (
     <mesh ref={earthRef}>
       <sphereGeometry args={[1, 50, 50]} />
@@ -305,11 +317,7 @@ function Sun() {
         const sunX = 50 * Math.cos(sunPos.azimuth) * Math.cos(sunPos.altitude);
         const sunY = 50 * Math.sin(sunPos.altitude);
         const sunZ = 50 * Math.sin(sunPos.azimuth) * Math.cos(sunPos.altitude);
-        sunRef.current.position.set(
-          sunX * 10 * SCALE_FACTOR,
-          sunY * 10 * SCALE_FACTOR,
-          sunZ * 10 * SCALE_FACTOR
-        );
+        sunRef.current.position.set(sunX * 10, sunY * 10, sunZ * 10);
       }
     }, 1000);
 
@@ -388,10 +396,10 @@ function Satellite({
   lat,
   lng,
   alt,
-  description,
   noradId,
   range,
   velocity,
+  description,
   setSelectedSatellite,
   sunPosition,
 }) {
@@ -409,7 +417,7 @@ function Satellite({
     loadModel();
   }, []);
 
-  useEffect(() => {
+  useFrame(() => {
     if (satelliteRef.current && gltf) {
       const radius = 1 + alt / 500;
       const phi = (90 - lat) * (Math.PI / 180);
@@ -419,13 +427,20 @@ function Satellite({
         radius * Math.cos(phi),
         radius * Math.sin(phi) * Math.sin(theta)
       );
-        console.log(sunPosition)
-      satelliteRef.current.up.set(sunPosition);
-      satelliteRef.current.lookAt(sunPosition);
-      satelliteRef.current.rotateX(Math.PI / 2);
-    }
-  }, [lat, lng, alt, gltf, sunPosition]);
 
+      // Calcola la direzione verso il sole
+      let directionToSun = new THREE.Vector3().subVectors(
+        new THREE.Vector3(...sunPosition),
+        satelliteRef.current.position
+      );
+      //console.log(directionToSun);
+      // Applica l'orientamento verso il sole
+      satelliteRef.current.lookAt(
+        satelliteRef.current.position.clone().add(directionToSun)
+      );
+      satelliteRef.current.rotation.x += Math.PI / 2;
+    }
+  });
   const handleClick = () => {
     setSelectedSatellite({
       name,
@@ -443,7 +458,7 @@ function Satellite({
     <group ref={satelliteRef} onClick={handleClick}>
       {gltf && (
         <>
-          <primitive object={gltf.scene.clone()} scale={0.01} />{" "}
+          <primitive object={gltf.scene.clone()} scale={0.01} />
           <Billboard>
             <Text position={[0, 0.1, 0]} fontSize={0.1} color="white">
               {name}
@@ -455,21 +470,16 @@ function Satellite({
   );
 }
 
-
-
-
-
-
 function EarthPage() {
   const [sunPosition, setSunPosition] = useState([0, 0, 0]);
-
+  const [planetData, setPlanetData] = useState([]);
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       const sunPos = SunCalc.getPosition(now, 41.9, 12.5);
-      const sunX = Math.cos(sunPos.azimuth) * Math.cos(sunPos.altitude);
-      const sunY = Math.sin(sunPos.altitude);
-      const sunZ = Math.sin(sunPos.azimuth) * Math.cos(sunPos.altitude);
+      const sunX = 50 * Math.cos(sunPos.azimuth) * Math.cos(sunPos.altitude);
+      const sunY = 50 * Math.sin(sunPos.altitude);
+      const sunZ = 50 * Math.sin(sunPos.azimuth) * Math.cos(sunPos.altitude);
       setSunPosition([sunX * 10, sunY * 10, sunZ * 10]);
     }, 1000);
 
@@ -531,16 +541,53 @@ function EarthPage() {
   const handleClose = () => {
     setSelectedSatellite(null);
   };
-  const planetsData = [
-    { name: 'Mars', position: [16, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.005, glbPath: '/mars.glb' },
-    { name: 'Jupiter', position: [20, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.002, glbPath: '/jupiter.glb' },
-    { name: 'Saturn', position: [26, 0, 0], scale: [1000000, 1000000, 1000000], rotationSpeed: 0.002, glbPath: '/saturn.glb' },
-    { name: 'Mercury', position: [10, 0, 0], scale: [10, 10, 10], rotationSpeed: 0.002, glbPath: '/mercury.glb' },
-    { name: 'Venus', position: [12, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.008, glbPath: '/venus.glb' },
-    { name: 'Uranus', position: [30, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/uranus.glb' },
-    { name: 'Neptune', position: [34, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/neptune.glb' },
-    { name: 'Pluto', position: [38, 0, 0], scale: [0.05, 0.05, 0.05], rotationSpeed: 0.001, glbPath: '/pluto.glb' },
-  ];
+
+  useEffect(() => {
+    async function fetchPlanetData() {
+      try {
+        console.log("fetching");
+        const response = await axios.get(
+          "https://api.le-systeme-solaire.net/rest/bodies/"
+        );
+        const bodies = response.data.bodies;
+
+        const planets = [
+          "Mercury",
+          "Venus",
+          "Earth",
+          "Mars",
+          "Jupiter",
+          "Saturn",
+          "Uranus",
+          "Neptune",
+        ];
+        const planetData = bodies
+          .filter((body) => planets.includes(body.englishName))
+          .map((planet) => ({
+            name: planet.englishName,
+            dimensions: {
+              meanRadius: planet.meanRadius,
+              equaRadius: planet.equaRadius,
+              polarRadius: planet.polarRadius,
+            },
+            //glbPath: "/" + planet.enlishName?.toLowerCase() + ".glb",
+            distanceFromEarth: planet.semimajorAxis, // in kilometers
+          }));
+        planetData[0].glbPath = planetData[0].name?.toLowerCase();
+        console.log(planetData);
+        //planetData.map((planet) => {});
+        //planetData.forEach((planet) => {
+        //  planet.glbPath = "/" + planet.enlishName?.toLowerCase() + ".glb";
+        //});
+        //console.log(planetData);
+        setPlanetData(planetData);
+      } catch (error) {
+        console.error("Error fetching planet data:", error);
+      }
+    }
+
+    fetchPlanetData();
+  }, []);
   return (
     <div
       style={{
@@ -564,11 +611,8 @@ function EarthPage() {
         <Earth />
         <Moon />
         <Sun />
-        {PLANETS.map((planet) => (
+        {planetData.map((planet) => (
           <Planet key={planet.name} planet={planet} />
-        ))}
-        {Object.entries(satellites).map(([name, satellite]) => (
-          <Satellite key={name} name={name} noradId={satellite.noradId} />
         ))}
         {Object.keys(satellites).map((name, index) => (
           <Satellite
